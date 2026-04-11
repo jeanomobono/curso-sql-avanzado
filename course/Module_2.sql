@@ -1,0 +1,105 @@
+-- # Module 2: Common Table Expressions (CTEs)
+-- A CTE (defined by the 'WITH' clause) creates a temporary result set 
+-- that you can reference within a SELECT, INSERT, UPDATE, or DELETE statement.
+-- It makes complex queries more readable and enables recursion.
+
+-- ## 2.1 Query Organization: Load Factor Calculation
+-- Use Case: Analyzing how full each flight is (Reservations vs. Capacity).
+
+-- Explanation:
+-- Instead of nesting several subqueries, we define clear steps.
+-- Step 1: Count reservations per flight.
+-- Step 2: Join with flight capacity and calculate the percentage.
+
+WITH BookingCounts AS (
+    SELECT 
+        VUE_ID_VUELO, 
+        COUNT(*) as Total_Bookings
+    FROM RESERVAS
+    GROUP BY VUE_ID_VUELO
+),
+FlightEfficiency AS (
+    SELECT 
+        v.ID_VUELO,
+        v.AER_ID_AERO as Origin,
+        v.AER_ID_AERO_DESTINO as Destination,
+        v.CAPACIDAD_AVION,
+        nvl(bc.Total_Bookings, 0) as Booked_Seats,
+        ROUND((nvl(bc.Total_Bookings, 0) / v.CAPACIDAD_AVION) * 100, 2) as Load_Factor
+    FROM VUELOS v
+    LEFT JOIN BookingCounts bc ON v.ID_VUELO = bc.VUE_ID_VUELO
+)
+SELECT * 
+FROM FlightEfficiency
+WHERE Load_Factor > 80 -- Show only high-demand flights
+ORDER BY Load_Factor DESC
+FETCH FIRST 10 ROWS ONLY;
+
+
+-- ## 2.2 Recursive CTEs: Flight Connections (Multi-leg)
+-- Use Case: Finding all possible routes from Munich (MUC) to Paris (CDG) 
+-- that include exactly one stop (2 legs).
+
+-- Explanation:
+-- A recursive CTE references itself. 
+-- The 'SEARCH DEPTH FIRST' or 'BREADTH FIRST' clause (Oracle 11gR2+) 
+-- helps control the traversal order.
+
+WITH FlightPaths (Origin, Destination, Path, Number_Of_Stops, Current_Date) AS (
+    -- Anchor Member: Direct flights from Munich
+    SELECT 
+        AER_ID_AERO, 
+        AER_ID_AERO_DESTINO,
+        CAST(AER_ID_AERO || ' -> ' || AER_ID_AERO_DESTINO AS VARCHAR2(200)),
+        0,
+        FECHA_VUELO
+    FROM VUELOS
+    WHERE AER_ID_AERO = 'MUC'
+    
+    UNION ALL
+    
+    -- Recursive Member: Connecting flights
+    SELECT 
+        fp.Origin,
+        v.AER_ID_AERO_DESTINO,
+        CAST(fp.Path || ' -> ' || v.AER_ID_AERO_DESTINO AS VARCHAR2(200)),
+        fp.Number_Of_Stops + 1,
+        v.FECHA_VUELO
+    FROM FlightPaths fp
+    JOIN VUELOS v ON fp.Destination = v.AER_ID_AERO
+    WHERE fp.Number_Of_Stops < 1 -- Limit to 1 stop (2 legs total)
+      AND v.FECHA_VUELO >= fp.Current_Date -- Connection must be on or after first leg
+)
+SELECT DISTINCT Path, Number_Of_Stops
+FROM FlightPaths
+WHERE Destination = 'CDG' -- Our final destination
+ORDER BY Number_Of_Stops;
+
+
+-- ## 2.3 Recursive CTEs: Generating a Date Series
+-- Use Case: Identifying "Quiet Days" (dates with no flights).
+
+-- Explanation:
+-- Sometimes you need a "virtual table" of all dates in a month to 
+-- perform a LEFT JOIN against your real data to find gaps.
+
+WITH DateSeries (FlightDate) AS (
+    -- Start with the first day of the dataset
+    SELECT TO_DATE('2026-02-22', 'YYYY-MM-DD') FROM DUAL
+    UNION ALL
+    -- Increment by 1 day until the end of the dataset
+    SELECT FlightDate + 1
+    FROM DateSeries
+    WHERE FlightDate + 1 <= TO_DATE('2026-03-18', 'YYYY-MM-DD')
+),
+DailyFlightCounts AS (
+    SELECT FECHA_VUELO, COUNT(*) as Flight_Count
+    FROM VUELOS
+    GROUP BY FECHA_VUELO
+)
+SELECT 
+    ds.FlightDate,
+    nvl(dfc.Flight_Count, 0) as Total_Flights
+FROM DateSeries ds
+LEFT JOIN DailyFlightCounts dfc ON ds.FlightDate = dfc.FECHA_VUELO
+ORDER BY ds.FlightDate;

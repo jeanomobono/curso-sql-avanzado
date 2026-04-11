@@ -1,0 +1,220 @@
+ ▝▜▄     Gemini CLI v0.37.1
+   ▝▜▄
+  ▗▟▀    Signed in with Google /auth
+ ▝▀      Plan: Gemini Code Assist for individuals /upgrade
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ We're making changes to Gemini CLI that may impact your workflow.                                                                                                     │
+│ What's Changing: We are adding more robust detection of policy-violating use cases and restricting models for free tier users.                                        │
+│ How it affects you: If you need use of Gemini pro models you will need to upgrade to a supported paid plan.                                                           │
+│ Read more: https://goo.gle/geminicli-updates                                                                                                                          │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+ > /mcp                                                                                                                                                                  
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+Configured MCP servers:
+
+🟢 sqlcl - Ready (7 tools, 2 prompts, 2 resources)
+  Tools:
+  - mcp_sqlcl_connect
+  - mcp_sqlcl_dbtools-get-tool-request
+  - mcp_sqlcl_disconnect
+  - mcp_sqlcl_list-connections
+  - mcp_sqlcl_run-sql
+  - mcp_sqlcl_run-sqlcl
+  - mcp_sqlcl_schema-information
+  Prompts:
+  - connection-helper
+  - develop-oracle-rest-data-services-api
+  Resources:
+  - DGAI DG Command (oracle/dbtools/mcp/DGAI_DGCommand.txt) [text/plain]
+  - DGAI Fixed View (oracle/dbtools/mcp/DGAI_FixedView.txt) [text/plain]
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+ > take a look at the dataset on the schema vuelos and give me some information about it                                                                                 
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+✦ I will start by listing the available database connections to see if I can access the vuelos schema.
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✓  list-connections (sqlcl MCP Server) {"model":"gemini-2.0-flash-exp"}                                                                                           │
+│                                                                                                                                                                   │
+│ APP_DIRECTORIO,hr_freepdb1,sys_freecdb,sys_freepdb1,turismo,vuelos                                                                                                │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+✦ I will connect to the vuelos database to begin my investigation.
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✓  connect (sqlcl MCP Server) {"connection_name":"vuelos","model":"gemini-2.0-flash-exp"}                                                                         │
+│                                                                                                                                                                   │
+│ DATABASE CONNECTION ESTABLISHED ###                                                                                                                               │
+│ Successfully connected to: vuelos                                                                                                                                 │
+│                                                                                                                                                                   │
+│ DATABASE ENVIRONMENT CONTEXT ###                                                                                                                                  │
+│                                                                                                                                                                   │
+│ 1. Oracle Database Version:                                                                                                                                       │
+│ 23.8.0.25.04                                                                                                                                                      │
+│ Here’s the Oracle database context you need: version, open mode, and NLS parameters. Use this information to run the following queries accurately and ensure they │
+│ align with the database’s current environment and settings.                                                                                                       │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+✦ I will list the tables and views available in the current schema to understand the dataset's structure.
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✓  schema-information (sqlcl MCP Server) {"model":"gemini-2.0-flash-exp","level":"BRIEF"}                                                                         │
+│                                                                                                                                                                   │
+│ Basic Schema Objects Listing:                                                                                                                                     │
+│  - Owner: VUELOS, Object Name: AER_CIU_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: AER_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: AGE_CIU_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: AGE_EVIA_FK_I, Object Type: INDEX                                                                                                  │
+│  - Owner: VUELOS, Object Name: AGE_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: CAT_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: CIU_PAI_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: CIU_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: CLI_CIU_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: CLI_EC_FK_I, Object Type: INDEX                                                                                                    │
+│  - Owner: VUELOS, Object Name: CLI_EDA_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: CLI_EL_FK_I, Object Type: INDEX                                                                                                    │
+│  - Owner: VUELOS, Object Name: CLI_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: CLI_SEX_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: COMP_PK, Object Type: INDEX                                                                                                        │
+│  - Owner: VUELOS, Object Name: EC_PK, Object Type: INDEX                                                                                                          │
+│  - Owner: VUELOS, Object Name: EDA_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: EL_PK, Object Type: INDEX                                                                                                          │
+│  - Owner: VUELOS, Object Name: EVIA_PK, Object Type: INDEX                                                                                                        │
+│  - Owner: VUELOS, Object Name: PAI_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: PLA_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: PLA_VUE_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: RES_AGE_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: RES_CLI_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: RES_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: RES_PLA_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: RES_TRS_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: SEX_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: SYS_C0014494, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: TRS_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: TVUE_PK, Object Type: INDEX                                                                                                        │
+│  - Owner: VUELOS, Object Name: VUE_AER_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: VUE_AER_ORIGEN_FK_I, Object Type: INDEX                                                                                            │
+│  - Owner: VUELOS, Object Name: VUE_CAT_FK_I, Object Type: INDEX                                                                                                   │
+│  - Owner: VUELOS, Object Name: VUE_COMP_FK_I, Object Type: INDEX                                                                                                  │
+│  - Owner: VUELOS, Object Name: VUE_PK, Object Type: INDEX                                                                                                         │
+│  - Owner: VUELOS, Object Name: VUE_TVUE_FK_I, Object Type: INDEX                                                                                                  │
+│  - Owner: VUELOS, Object Name: SYS_LOB0000082272C00006$$, Object Type: LOB                                                                                        │
+│  - Owner: VUELOS, Object Name: CARGA_CLIENTES, Object Type: PROCEDURE                                                                                             │
+│  - Owner: VUELOS, Object Name: CARGA_RESERVAS, Object Type: PROCEDURE                                                                                             │
+│  - Owner: VUELOS, Object Name: CARGA_VUELOS, Object Type: PROCEDURE                                                                                               │
+│  - Owner: VUELOS, Object Name: AGE_SEQ, Object Type: SEQUENCE                                                                                                     │
+│  - Owner: VUELOS, Object Name: EDA_SEQ, Object Type: SEQUENCE                                                                                                     │
+│  - Owner: VUELOS, Object Name: ISEQ$$_82272, Object Type: SEQUENCE                                                                                                │
+│  - Owner: VUELOS, Object Name: PLA_SEQ, Object Type: SEQUENCE                                                                                                     │
+│  - Owner: VUELOS, Object Name: AEROPUERTOS, Object Type: TABLE                                                                                                    │
+│  - Owner: VUELOS, Object Name: AGENCIAS, Object Type: TABLE                                                                                                       │
+│  - Owner: VUELOS, Object Name: CATERING, Object Type: TABLE                                                                                                       │
+│  - Owner: VUELOS, Object Name: CIUDADES, Object Type: TABLE                                                                                                       │
+│  - Owner: VUELOS, Object Name: CLIENTES, Object Type: TABLE                                                                                                       │
+│  - Owner: VUELOS, Object Name: COMPANIAS, Object Type: TABLE                                                                                                      │
+│  - Owner: VUELOS, Object Name: DBTOOLS$MCP_LOG, Object Type: TABLE                                                                                                │
+│  - Owner: VUELOS, Object Name: EDADES, Object Type: TABLE                                                                                                         │
+│  - Owner: VUELOS, Object Name: EMPRESAS_VIAJES, Object Type: TABLE                                                                                                │
+│  - Owner: VUELOS, Object Name: ESTADOSCIVILES, Object Type: TABLE                                                                                                 │
+│  - Owner: VUELOS, Object Name: ESTADOSLABORALES, Object Type: TABLE                                                                                               │
+│  - Owner: VUELOS, Object Name: PAISES, Object Type: TABLE                                                                                                         │
+│  - Owner: VUELOS, Object Name: PLAZAS, Object Type: TABLE                                                                                                         │
+│  - Owner: VUELOS, Object Name: RESERVAS, Object Type: TABLE                                                                                                       │
+│  - Owner: VUELOS, Object Name: SEXOS, Object Type: TABLE                                                                                                          │
+│  - Owner: VUELOS, Object Name: TIPOS_RESERVAS, Object Type: TABLE                                                                                                 │
+│  - Owner: VUELOS, Object Name: TIPOS_VUELO, Object Type: TABLE                                                                                                    │
+│  - Owner: VUELOS, Object Name: VUELOS, Object Type: TABLE                                                                                                         │
+│  - Owner: VUELOS, Object Name: TRG_ORIGEN_DESTINO, Object Type: TRIGGER                                                                                           │
+│                                                                                                                                                                   │
+│ Optimized Table DDL Outline:                                                                                                                                      │
+│ COMPANIAS:ID_COMP(VARCHAR2),CN_COMP(VARCHAR2):                                                                                                                    │
+│ CLIENTES:NIF(VARCHAR2),NOMBRE(VARCHAR2),APELLIDOS(VARCHAR2),SEX_ID_SEXO(VARCHAR2),EC_ID_EC(VARCHAR2),EL_ID_EL(VARCHAR2),EDA_EDA_ID(NUMBER),CIU_ID_CIUDAD(VARCHAR2 │
+│ ):CLIENTES.SEX_ID_SEXO=SEXOS.ID_SEXO,CLIENTES.EL_ID_EL=ESTADOSLABORALES.ID_EL,CLIENTES.EC_ID_EC=ESTADOSCIVILES.ID_EC,CLIENTES.EDA_EDA_ID=EDADES.EDA_ID,CLIENTES.C │
+│ IU_ID_CIUDAD=CIUDADES.ID_CIUDAD                                                                                                                                   │
+│ AGENCIAS:ID_AGENCIA(NUMBER),CN_AGENCIA(VARCHAR2),CIU_ID_CIUDAD(VARCHAR2),EVIA_ID_EMP_VIAJE(VARCHAR2):AGENCIAS.EVIA_ID_EMP_VIAJE=EMPRESAS_VIAJES.ID_EMP_VIAJE,AGEN │
+│ CIAS.CIU_ID_CIUDAD=CIUDADES.ID_CIUDAD                                                                                                                             │
+│ TIPOS_VUELO:CN_VUELO(VARCHAR2),ID_VUELO(VARCHAR2):                                                                                                                │
+│ EMPRESAS_VIAJES:CN_EMP_VIAJE(VARCHAR2),ID_EMP_VIAJE(VARCHAR2):                                                                                                    │
+│ SEXOS:CN_SEXO(VARCHAR2),ID_SEXO(VARCHAR2):                                                                                                                        │
+│ PLAZAS:PLA_ID(NUMBER),ASIENTO(CHAR),VUE_ID_VUELO(NUMBER):PLAZAS.VUE_ID_VUELO=VUELOS.ID_VUELO                                                                      │
+│ AEROPUERTOS:CN_AERO(VARCHAR2),ID_AERO(VARCHAR2),CIU_ID_CIUDAD(VARCHAR2):AEROPUERTOS.CIU_ID_CIUDAD=CIUDADES.ID_CIUDAD                                              │
+│ ESTADOSLABORALES:ID_EL(VARCHAR2),CN_EL(VARCHAR2):                                                                                                                 │
+│ PAISES:CN_PAIS(VARCHAR2),ID_PAIS(VARCHAR2):                                                                                                                       │
+│ RESERVAS:ID_RESERVA(VARCHAR2),IMPORTE(NUMBER),CLI_NIF(VARCHAR2),TRS_ID_TRESERVA(VARCHAR2),AGE_ID_AGENCIA(NUMBER),PLA_ID_PLAZA(NUMBER),VUE_ID_VUELO(NUMBER):RESERV │
+│ AS.CLI_NIF=CLIENTES.NIF,RESERVAS.AGE_ID_AGENCIA=AGENCIAS.ID_AGENCIA,RESERVAS.PLA_ID_PLAZA=PLAZAS.PLA_ID,RESERVAS.VUE_ID_VUELO=PLAZAS.VUE_ID_VUELO,RESERVAS.TRS_ID │
+│ _TRESERVA=TIPOS_RESERVAS.ID_TRESERVA                                                                                                                              │
+│ VUELOS:ID_VUELO(NUMBER),FECHA_VUELO(DATE),DETALLES(VARCHAR2),AER_ID_AERO(VARCHAR2),COMP_ID_COMP(VARCHAR2),TVUE_ID_VUELO(VARCHAR2),CAT_ID_CATERING(VARCHAR2),AER_I │
+│ D_AERO_DESTINO(VARCHAR2),CAPACIDAD_AVION(NUMBER):VUELOS.COMP_ID_COMP=COMPANIAS.ID_COMP,VUELOS.TVUE_ID_VUELO=TIPOS_VUELO.ID_VUELO,VUELOS.AER_ID_AERO_DESTINO=AEROP │
+│ UERTOS.ID_AERO,VUELOS.AER_ID_AERO=AEROPUERTOS.ID_AERO,VUELOS.CAT_ID_CATERING=CATERING.ID_CATERING                                                                 │
+│ ESTADOSCIVILES:CN_EC(VARCHAR2),ID_EC(VARCHAR2):                                                                                                                   │
+│ CATERING:ID_CATERING(VARCHAR2),CN_CATERING(VARCHAR2):                                                                                                             │
+│ TIPOS_RESERVAS:ID_TRESERVA(VARCHAR2),CN_TRESERVA(VARCHAR2):                                                                                                       │
+│ EDADES:EDA_ID(NUMBER),ID_EDAD(VARCHAR2),RANGO_EDAD(VARCHAR2):                                                                                                     │
+│ CIUDADES:ID_CIUDAD(VARCHAR2),CN_CIUDAD(VARCHAR2),PAI_ID_PAIS(VARCHAR2):CIUDADES.PAI_ID_PAIS=PAISES.ID_PAIS                                                        │
+│ DBTOOLS$MCP_LOG:ID(NUMBER),MCP_CLIENT(VARCHAR2),MODEL(VARCHAR2),END_POINT_TYPE(VARCHAR2),END_POINT_NAME(VARCHAR2),LOG_MESSAGE(CLOB),CREATED_ON(TIMESTAMP(6)),CREA │
+│ TED_BY(VARCHAR2),UPDATED_ON(TIMESTAMP(6)),UPDATED_BY(VARCHAR2):                                                                                                   │
+│                                                                                                                                                                   │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+✦ I will count the records in the primary tables—VUELOS, RESERVAS, and CLIENTES—to gauge the dataset's size.
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✓  run-sql (sqlcl MCP Server) {"model":"gemini-2.0-flash-exp","sql":"SELECT 'VUELOS' as table_name, count(*) as row_count FROM VUELOS\nUNION ALL\nSELECT 'RESERV… │
+│                                                                                                                                                                   │
+│ "TABLE_NAME","ROW_COUNT"                                                                                                                                          │
+│ "VUELOS",57971                                                                                                                                                    │
+│ "RESERVAS",172324                                                                                                                                                 │
+│ "CLIENTES",9999                                                                                                                                                   │
+│ "AEROPUERTOS",34                                                                                                                                                  │
+│ "PLAZAS",2898550                                                                                                                                                  │
+│                                                                                                                                                                   │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+✦ I will retrieve a sample of five records from the VUELOS table to examine the data format and attributes.
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✓  run-sql (sqlcl MCP Server) {"sql":"SELECT * FROM VUELOS FETCH FIRST 5 ROWS ONLY","model":"gemini-2.0-flash-exp"}                                               │
+│                                                                                                                                                                   │
+│ "ID_VUELO","FECHA_VUELO","DETALLES","AER_ID_AERO","COMP_ID_COMP","TVUE_ID_VUELO","CAT_ID_CATERING","AER_ID_AERO_DESTINO","CAPACIDAD_AVION"                        │
+│ 971,22/02/2026,"VUELO971","MUC","BRITA","REG","NO","LYS",120                                                                                                      │
+│ 975,10/03/2026,"VUELO975","CDG","SPNAI","NAC","SI","BIO",60                                                                                                       │
+│ 976,05/03/2026,"VUELO976","BIO","AIREU","NAC","SI","BCN",60                                                                                                       │
+│ 977,24/02/2026,"VUELO977","VCE","ALITA","CHA","SI","IAD",50                                                                                                       │
+│ 978,23/02/2026,"VUELO978","MXP","IBERI","INT","SI","TFN",120                                                                                                      │
+│                                                                                                                                                                   │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+✦ I will check the date range of the flights in the VUELOS table to better understand the dataset's chronological scope.
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✓  run-sql (sqlcl MCP Server) {"sql":"SELECT min(FECHA_VUELO) as first_flight, max(FECHA_VUELO) as last_flight FROM VUELOS","model":"gemini-2.0-flash-exp"}       │
+│                                                                                                                                                                   │
+│ "FIRST_FLIGHT","LAST_FLIGHT"                                                                                                                                      │
+│ 22/02/2026,18/03/2026                                                                                                                                             │
+│                                                                                                                                                                   │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+✦ The vuelos schema contains a highly dense dataset focused on flight operations and reservations concentrated in a short, specific period in early 2026.
+
+  Dataset Overview
+   * Total Flights: 57,971 records.
+   * Total Reservations: 172,324 records.
+   * Total Clients: 9,999 records.
+   * Total Seats (Plazas): 2,898,550 records.
+   * Temporal Scope: Flights are scheduled daily between February 22, 2026, and March 18, 2026.
+
+  Key Entities & Structure
+   * Core Operations (VUELOS & RESERVAS): The schema tracks flights, their dates, origin/destination airports (34 total), airline companies, aircraft capacity, and
+     catering services. Reservations link clients to specific seats (PLAZAS) on these flights.
+   * Passenger Demographics (CLIENTES): Detailed information is available for nearly 10,000 clients, including geographic data (City/Country) and demographic attributes
+     like sex, age range, marital status, and employment status.
+   * Sales Channels (AGENCIAS & EMPRESAS_VIAJES): Reservations are associated with travel agencies and travel companies.
+   * Lookup Tables: The schema is well-normalized with lookup tables for flight types (e.g., Regional, National, Charter, International), catering options, and
+     reservation types.
+
+  This dataset is particularly rich for analyzing airline performance, passenger demographics, and booking density during a peak travel period.
+
+
+                                                                                                                                                         ? for shortcuts
