@@ -2,7 +2,7 @@
 
 Welcome to the **Advanced SQL Course**. This program is designed for developers and data analysts who want to move beyond basic CRUD operations and master the high-performance features of the Oracle Database. 
 
-Using the **`vuelos` (Aviation)** dataset, we will solve real-world business problems using the latest techniques in Oracle 23ai.
+Using the **`vuelos` (Aviation)** dataset, we will solve real-world business problems using the latest techniques in Oracle 23ai
 
 ---
 
@@ -12,7 +12,7 @@ To follow this course, you will need:
 *   **Database:** Oracle Database 23ai (Free/Developer Edition).
 *   **IDE:** Visual Studio Code.
 *   **Extension:** [Oracle SQL Developer Extension for VS Code](https://marketplace.visualstudio.com/items?itemName=Oracle.sql-developer).
-*   **Dataset:** The `vuelos` schema (pre-loaded with flights, reservations, and passenger data).
+*   **Dataset:** The `vuelos` schema (pre-loaded with flights, reservations, and passenger data, can be downloaded from [here](https://github.com/CafeDatabase/vuelos-dataset).
 
 ---
 
