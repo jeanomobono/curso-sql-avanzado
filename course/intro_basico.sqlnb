@@ -224,7 +224,7 @@ cells:
       where pop_rank <= 3;
     languageId: oracle-sql
   - kind: 1
-    value: >
+    value: >-
       Existe una mejor forma, usando la cláusula de partición que vimos al
       principio, en la sintaxis básica de las funciones analíticas.
 
@@ -240,4 +240,165 @@ cells:
       )
 
       ```
+
+
+      Esta cláusula nos permite agrupar los datos según una columna o
+      expresión. 
+
+
+      Por lo general cuando el requerimiento sea algo como "por país" o "por
+      empleado" seguramente requerirá el uso de esta cláusula.
     languageId: markdown
+  - kind: 2
+    value: |-
+      select * 
+      from ( 
+        select c.*, 
+               row_number() over (  
+                   partition by continent 
+                   order by population desc) as pop_rank 
+        from   COUNTRIES_POPULATION c 
+      ) 
+      where pop_rank <= 3
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## Particionado con agregaciones
+
+
+      Nuevo requerimiento: necesito el total **acumulado** de los salarios
+      departamentales por empleado.
+
+
+      En esta caso, debemos hacer uso de la función `SUM` (muchas de las
+      funciones de agrupamiento que conocemos pueden ser usadas como funciones
+      analíticas)
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select EMPLOYEE_ID, FIRST_NAME, JOB_ID, HIRE_DATE, SALARY
+      from EMPLOYEES
+      order by SALARY
+    languageId: oracle-sql
+  - kind: 2
+    value: |-
+      select DEPARTMENT_ID, EMPLOYEE_ID, FIRST_NAME, JOB_ID, SALARY,
+            sum(SALARY) OVER (
+              partition by DEPARTMENT_ID
+              order by FIRST_NAME) as running_total
+          from EMPLOYEES
+          order by DEPARTMENT_ID, FIRST_NAME
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      *ATENCIÓN*: la cláusula `ORDER BY` al final de la setencia puede afectar
+      cómo se ven los resultados. Los cálculos segurían siendo correctos, pero
+      no se mostrarían en el orden esperado.
+
+
+      Nada impide que ustedes cambien el orden final de la consulta, deben
+      asegurarse que dicho ordenamiento se corresponde con el mismo orden de la
+      consulta analítica que están ejecutando.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select DEPARTMENT_ID, EMPLOYEE_ID, FIRST_NAME, JOB_ID, SALARY,
+            sum(SALARY) OVER (
+              partition by DEPARTMENT_ID
+              order by FIRST_NAME) as running_total
+          from EMPLOYEES
+          order by DEPARTMENT_ID, HIRE_DATE
+    languageId: oracle-sql
+  - kind: 1
+    value: La posibilidad de usar las funciones de agrupación como `SUM` en
+      funciones analíticas nos abre una abaníco de posiblidades, sin embargo
+      deben tener cuidado con el costo de dichas consultas.
+    languageId: markdown
+  - kind: 2
+    value: >-
+      select /*+ gather_plan_statistics */ DEPARTMENT_ID, JOB_ID, FIRST_NAME,
+      SALARY,
+                 sum(SALARY) over () total_sal,
+                 sum(SALARY) over 
+                     ( partition by DEPARTMENT_ID) sal_by_dept,
+                 sum(SALARY) over 
+                     ( partition by DEPARTMENT_ID, JOB_ID) sal_by_dept_job
+          from EMPLOYEES
+          order by DEPARTMENT_ID, JOB_ID;
+
+      select * 
+
+      from   table(dbms_xplan.display_cursor(format => 'allstats LAST'));
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## Ventanas (cláusula `windowing`)
+
+
+      Este concepto es un poco más complejo: permite controlar la ventana, o
+      grupo de filas, sobre la cual la función analítica va a operar. Tiene tres
+      formas básicas:
+
+
+      - `RANGE BETWEEN start_point AND end_point`
+
+      - `ROWS BETWEEN start_point AND end_point`
+
+      - `GROUPS BETWEEN start_point AND end_point` (A partir de 21c)
+
+
+      Requerimiento: Necesito el total acumulado de la cobertura total de los
+      océanos en el mundo, del más grande al más pequeño.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select * 
+      from water
+      order by 3 desc
+    languageId: oracle-sql
+  - kind: 2
+    value: |-
+      select name, type, square_km,
+             sum(square_km) over ( order by square_km desc 
+                rows between unbounded preceding and current row
+      ) as tot
+      from water
+      order by 3 desc
+    languageId: oracle-sql
+  - kind: 1
+    value: >
+      Sin embargo, el resultado de esta consulta es similar a si hubira
+      utilizado solo la función `SUM` ordenado por tamaño.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select name, type, square_km,
+             sum(square_km) over ( order by square_km desc) as tot
+      from water
+      order by 3 desc;
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      La diferencia se nota cuando agregamos dos registros cuyo tamaño sea el
+      mismo. 
+
+      La primera consulta, la que usa la cláusula *windowing* opera sobre las
+      filas físicas, sumando una cada vez. La segunda consulta ve que hay un
+      registro con el mismo valor y suma ambas cantidades al total como si fuera
+      una sola unidad (pero no se muestra en el total detallado)
+    languageId: markdown
+  - kind: 1
+    value: "Veamos otro ejemplo, tenemos un nuevo requerimiento: Suma los datos
+      sobre los océanos en 3 filas por tipo de región."
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select name, type, square_km,
+             sum(square_km) over ( 
+                partition by type
+                order by square_km desc 
+                rows between 1 preceding and 1 following
+      ) as "3_ROW"
+      from water
+      order by decode(type,'Ocean',1,'Sea',2,3), square_km desc
+    languageId: oracle-sql
