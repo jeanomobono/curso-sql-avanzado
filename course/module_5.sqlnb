@@ -1,0 +1,89 @@
+cells:
+  - kind: 1
+    value: >-
+      # Module 5: Data Recovery & Security
+
+      High-level Oracle features to protect data integrity and control granular
+      access.
+
+
+      ## 5.1 Flashback Query: "Time Travel" for Data
+
+      Use Case: A user accidentally updated or deleted a reservation.
+
+
+      **Explanation**:
+
+      Flashback allows you to query the state of a table as it existed at a
+      specific point in time (using SCN or Timestamp), provided it's within the
+      'undo_retention' period.
+    languageId: markdown
+  - kind: 2
+    value: >
+      -- 1. Check current data (e.g., IMPORTE for a specific reservation)
+
+      SELECT ID_RESERVA, IMPORTE 
+
+      FROM RESERVAS 
+
+      WHERE ID_RESERVA = 'RES-001'
+
+      FETCH FIRST 1 ROW ONLY;
+
+
+      -- 2. Mock Error: Update the importe by mistake
+
+      UPDATE RESERVAS SET IMPORTE = 0 WHERE ID_RESERVA = 'RES-001';
+
+      COMMIT;
+
+
+      -- 3. Recover: See the value as it was 5 minutes ago
+
+      SELECT ID_RESERVA, IMPORTE 
+
+      FROM RESERVAS AS OF TIMESTAMP (SYSTIMESTAMP - INTERVAL '5' MINUTE)
+
+      WHERE ID_RESERVA = 'RES-001';
+
+
+      -- 4. Restore: Correct the mistake using the historical data
+
+      UPDATE RESERVAS r
+
+      SET r.IMPORTE = (
+          SELECT old.IMPORTE 
+          FROM RESERVAS AS OF TIMESTAMP (SYSTIMESTAMP - INTERVAL '10' MINUTE) old
+          WHERE old.ID_RESERVA = r.ID_RESERVA
+      )
+
+      WHERE r.ID_RESERVA = 'RES-001';
+
+      COMMIT;
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## 5.2 Flashback Versions Query: Tracking Changes
+
+      Use Case: Auditing who changed what and when.
+
+
+      Explanation:
+
+      This query returns a row for every version of a record that existed during
+      a specific interval.
+    languageId: markdown
+  - kind: 2
+    value: |
+      SELECT 
+          VERSIONS_STARTTIME, 
+          VERSIONS_ENDTIME, 
+          VERSIONS_OPERATION, 
+          ID_RESERVA, 
+          IMPORTE
+      FROM RESERVAS
+      VERSIONS BETWEEN TIMESTAMP 
+          (SYSTIMESTAMP - INTERVAL '10' MINUTE) AND SYSTIMESTAMP
+      WHERE ID_RESERVA = 'RES-001'
+      ORDER BY VERSIONS_STARTTIME;
+    languageId: oracle-sql
