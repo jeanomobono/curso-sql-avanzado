@@ -1,0 +1,51 @@
+cells:
+  - kind: 1
+    value: >-
+      # Introducción: Funciones analíticas
+
+
+      Las funciones analíticas calculan un valor agregado a partir de un grupo
+      de filas. Se diferencian de las funciones de agregación en que devuelven
+      varias filas por cada grupo. Este grupo de filas se denomina ventana y se
+      define mediante la cláusula analítica. Para cada fila, se define una
+      ventana deslizante. Esta ventana determina el rango de filas que se
+      utilizan para realizar los cálculos de la fila actual. El tamaño de la
+      ventana puede basarse en un número físico de filas o en un intervalo
+      lógico, como el tiempo. Las funciones analíticas son las últimas
+      operaciones que se ejecutan en una consulta, a excepción de la cláusula
+      ORDER BY final. Todas las uniones y todas las cláusulas WHERE, GROUP BY y
+      HAVING se completan antes de que se procesen las funciones analíticas. Por
+      lo tanto, las funciones analíticas solo pueden aparecer en la lista de
+      selección o en la cláusula ORDER BY.
+
+
+      ## Sintaxis básica
+
+
+      ```
+
+      <function> ( <arg>,<arg>,… )
+
+      OVER (
+        <partition clause>
+        <sorting clause>
+        <windowing clause>
+      )
+
+      ```
+
+
+      ## Función RANK
+
+
+      Se utiliza para asignar un rango a cada fila en dentro de un conjunto de
+      resultados.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select employee_id, first_name, job_id, hire_date, salary,
+             rank () over (order by hire_date) as hire_seq,
+             dense_rank() over (order by hire_date) as hire_seq_dense,
+             row_number() over (order by hire_date, employee_id) as hire_seq_row
+      from hr.EMPLOYEES;
+    languageId: oracle-sql
