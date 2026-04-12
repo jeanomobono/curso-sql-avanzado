@@ -1,0 +1,132 @@
+cells:
+  - kind: 1
+    value: >-
+      # Module 3: Advanced Reporting & Specialized Clauses
+
+      These clauses allow you to generate sophisticated summary reports with
+      subtotals and grand totals in a single pass over the data.
+
+
+      ## 3.1 Hierarchical Totals: ROLLUP
+
+      Use Case: Geography-based flight report (Country > City > Airport).
+
+
+      **Explanation**:
+
+
+      ROLLUP creates hierarchical subtotals. 
+
+      For ROLLUP(A, B, C), it calculates: (A, B, C), (A, B), (A), and ().
+    languageId: markdown
+  - kind: 2
+    value: |-
+      SELECT 
+          p.CN_PAIS as Country,
+          ci.CN_CIUDAD as City,
+          a.CN_AERO as Airport,
+          COUNT(*) as Flight_Count
+      FROM VUELOS v
+      JOIN AEROPUERTOS a ON v.AER_ID_AERO = a.ID_AERO
+      JOIN CIUDADES ci   ON a.CIU_ID_CIUDAD = ci.ID_CIUDAD
+      JOIN PAISES p      ON ci.PAI_ID_PAIS = p.ID_PAIS
+      GROUP BY ROLLUP(p.CN_PAIS, ci.CN_CIUDAD, a.CN_AERO)
+      ORDER BY p.CN_PAIS, ci.CN_CIUDAD, a.CN_AERO;
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## 3.2 Cross-Dimensional Analysis: CUBE
+
+      Use Case: Airline vs. Flight Type (How many National vs. International
+      flights?)
+
+
+      **Explanation**:
+
+
+      CUBE calculates all possible combinations of the grouping columns.
+
+      For CUBE(A, B), it calculates: (A, B), (A), (B), and ().
+    languageId: markdown
+  - kind: 2
+    value: >
+      SELECT 
+          c.CN_COMP as Airline,
+          tv.CN_VUELO as Flight_Type,
+          COUNT(*) as Total_Flights
+      FROM VUELOS v
+
+      JOIN COMPANIAS c    ON v.COMP_ID_COMP = c.ID_COMP
+
+      JOIN TIPOS_VUELO tv ON v.TVUE_ID_VUELO = tv.ID_VUELO
+
+      WHERE c.CN_COMP IN ('Iberia', 'Air Europa', 'Spanair') -- Filter for a
+      focused report
+
+      GROUP BY CUBE(c.CN_COMP, tv.CN_VUELO)
+
+      ORDER BY c.CN_COMP, tv.CN_VUELO;
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## 3.3 Precise Aggregations: GROUPING SETS
+
+      Use Case: Specific summaries (Totals by Airline only AND Totals by Month
+      only).
+
+
+      **Explanation**:
+
+
+      GROUPING SETS allows you to specify the exact groups you want, without
+      calculating the entire hierarchy of a ROLLUP or CUBE.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      SELECT 
+          c.CN_COMP as Airline,
+          TO_CHAR(v.FECHA_VUELO, 'Month') as Month_Name,
+          COUNT(*) as Flight_Count
+      FROM VUELOS v
+      JOIN COMPANIAS c ON v.COMP_ID_COMP = c.ID_COMP
+      GROUP BY GROUPING SETS (
+          (c.CN_COMP),              -- Subtotal by Airline
+          (TO_CHAR(v.FECHA_VUELO, 'Month')), -- Subtotal by Month
+          ()                        -- Grand Total
+      )
+      ORDER BY c.CN_COMP, Month_Name;
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## 3.4 Data Rotation: PIVOT
+
+      Use Case: Transforming Flight Type categories into columns.
+
+
+      **Explanation**:
+
+
+      PIVOT converts row values into columns, which is ideal for executive
+      dashboards or matrix reports.
+    languageId: markdown
+  - kind: 2
+    value: |
+      SELECT * FROM (
+          SELECT 
+              c.CN_COMP as Airline,
+              tv.CN_VUELO as Flight_Type
+          FROM VUELOS v
+          JOIN COMPANIAS c    ON v.COMP_ID_COMP = c.ID_COMP
+          JOIN TIPOS_VUELO tv ON v.TVUE_ID_VUELO = tv.ID_VUELO
+      )
+      PIVOT (
+          COUNT(Flight_Type) 
+          FOR Flight_Type IN (
+              'Regional' as REG, 
+              'Nacional' as NAC, 
+              'Internacional' as INT, 
+              'Charter' as CHA
+          )
+      )
+      ORDER BY Airline;
+    languageId: oracle-sql
