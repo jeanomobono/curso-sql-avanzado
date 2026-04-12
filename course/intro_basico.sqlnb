@@ -402,3 +402,47 @@ cells:
       from water
       order by decode(type,'Ocean',1,'Sea',2,3), square_km desc
     languageId: oracle-sql
+  - kind: 1
+    value: >-
+      De momento hemos visto cómo definir un rango por el número de filas
+      precedentes y a continuación, pero en ocasiones debemos indicar el rango
+      con valores.
+
+
+      Nuevo requerimiento: Obtener el *moving average* (promedio móvil) de
+      tweets por día
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select 
+        dte,
+        tweet_millions
+      from tweets
+      order by dte
+    languageId: oracle-sql
+  - kind: 1
+    value: Como vemos hay saltos en las fechas, por lo que no podemos simplemente
+      indicar una cantidad de filas hacia arriba o hacia abajo. Es mejor hacer
+      uso de un rango por valores, en este caso por rangos de fecha.
+    languageId: markdown
+  - kind: 2
+    value: >-
+      select  dte, tweet_millions,
+        round(
+          avg(tweet_millions) over
+               ( order by dte
+                 range between interval '6' month preceding and current row )) mov_avg
+      from tweets
+
+      order by dte
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      Por supuesto, ahora los límites de las filas también son varibles ¿cuál es
+      la primera fila dentro de la ventana que estoy definiendo? ¿cuál es la
+      última?
+
+
+      Veamos un nuevo requerimiento: Muéstrame la esperanza de vida en todo el
+      Reino Unido en comparación con 5 años a cada lado.
+    languageId: markdown
