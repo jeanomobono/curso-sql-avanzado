@@ -26,14 +26,14 @@ cells:
 
       FROM RESERVAS 
 
-      WHERE ID_RESERVA = 'RES-001'
+      WHERE ID_RESERVA = '^KbfNh`e]F'
 
       FETCH FIRST 1 ROW ONLY;
 
 
       -- 2. Mock Error: Update the importe by mistake
 
-      UPDATE RESERVAS SET IMPORTE = 0 WHERE ID_RESERVA = 'RES-001';
+      UPDATE RESERVAS SET IMPORTE = 0 WHERE ID_RESERVA = '^KbfNh`e]F';
 
       COMMIT;
 
@@ -44,7 +44,7 @@ cells:
 
       FROM RESERVAS AS OF TIMESTAMP (SYSTIMESTAMP - INTERVAL '5' MINUTE)
 
-      WHERE ID_RESERVA = 'RES-001';
+      WHERE ID_RESERVA = '^KbfNh`e]F';
 
 
       -- 4. Restore: Correct the mistake using the historical data
@@ -57,7 +57,7 @@ cells:
           WHERE old.ID_RESERVA = r.ID_RESERVA
       )
 
-      WHERE r.ID_RESERVA = 'RES-001';
+      WHERE r.ID_RESERVA = '^KbfNh`e]F';
 
       COMMIT;
     languageId: oracle-sql
@@ -84,6 +84,6 @@ cells:
       FROM RESERVAS
       VERSIONS BETWEEN TIMESTAMP 
           (SYSTIMESTAMP - INTERVAL '10' MINUTE) AND SYSTIMESTAMP
-      WHERE ID_RESERVA = 'RES-001'
+      WHERE ID_RESERVA = '^KbfNh`e]F'
       ORDER BY VERSIONS_STARTTIME;
     languageId: oracle-sql
