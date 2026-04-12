@@ -43,9 +43,201 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
+      select employee_id, first_name, job_id, hire_date, salary
+      from hr.EMPLOYEES;
+    languageId: oracle-sql
+  - kind: 2
+    value: |-
+      select employee_id, first_name, job_id, hire_date, salary,
+             rank () over (order by hire_date) as hire_seq
+      from hr.EMPLOYEES;
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## Función DENSE_RANK
+
+
+      Similar a la función RANK pero no salta la numeración al encontrar
+      registros con el mismo rango
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select employee_id, first_name, job_id, hire_date, salary,
+             rank () over (order by hire_date) as hire_seq,
+             dense_rank() over (order by hire_date) as hire_seq_dense
+      from hr.EMPLOYEES;
+    languageId: oracle-sql
+  - kind: 1
+    value: |-
+      ## Función ROW_NUMBER
+
+      Devuelve el número de la fila
+    languageId: markdown
+  - kind: 2
+    value: |-
       select employee_id, first_name, job_id, hire_date, salary,
              rank () over (order by hire_date) as hire_seq,
              dense_rank() over (order by hire_date) as hire_seq_dense,
              row_number() over (order by hire_date, employee_id) as hire_seq_row
       from hr.EMPLOYEES;
     languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## Manejo de NULLS
+
+
+      Como en toda sentencia SQL, los valores NULL deben ser tratados
+      aprpiadamente en las funciones analíticas.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select * from PLANETS;
+
+      select * from MOONS;
+    languageId: oracle-sql
+  - kind: 1
+    value: 'El requerimiento que nos han dado es: "ordena los planetas por el tamaño
+      de sus lunas"'
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select p.name planet, m.name, m.radius,  
+             row_number() over ( order by radius desc ) as size_rank 
+      from planets p, moons m 
+      where p.name = m.planet_name(+) 
+      and p.name in ('Mars','Venus','Pluto','Mercury','Neptune') 
+      order by size_rank;
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      Los planetas Venus y Mercurio no tiene lunas, así que el valor de los
+      radios es NULL, colocándolos de primero.
+
+
+      Al igual que la clausular `ORDER BY` tradicional, puedo indicar cual es el
+      tratamiento que se le debe dar a las columnas que tiene valores NULL.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select p.name planet, m.name, m.radius,  
+             row_number() over ( order by radius desc NULLS LAST ) as size_rank 
+      from planets p, moons m 
+      where p.name = m.planet_name(+) 
+      and p.name in ('Mars','Venus','Pluto','Mercury','Neptune');
+    languageId: oracle-sql
+  - kind: 1
+    value: Si hubiera utilizado la función `RANK` me hubiera retornado el mismo
+      valor para ambas filas con NULL.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select p.name planet, m.name, m.radius, 
+             rank() over ( order by radius desc ) as size_rank 
+      from planets p, moons m 
+      where p.name = m.planet_name(+) 
+      and p.name in ('Mars','Venus','Pluto','Mercury','Neptune') 
+      order by size_rank;
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## Predicados
+
+
+      Un nuevo requerimiento llega: Listado de las tres lunas más grandes de los
+      siguientes planetas: Tierra, Marte y Saturno.
+
+
+      Lo primero que podríamos pensar sería en colocar un predicado (`WHERE`)
+      para filtrar los planetas según el rango de los radios de sus lunas.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select planet_name, name, radius,  
+             row_number() over ( order by radius desc) as size_rank
+      from   moons
+      where  planet_name in ('Earth','Mars','Saturn')
+      and    row_number() over ( order by radius desc) <= 3;
+    languageId: oracle-sql
+  - kind: 1
+    value: La consulta anterior daría error, dado que no es válido colocar una
+      función analítica en la cláusula `WHERE` de ese modo. La solución en este
+      caso sería encerrar esta consulta como un `INLINE VIEW` o una subconsulta
+      dentro de la cláusula `FROM` y luego hacer el filtro.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select *
+      from (
+        select planet_name, name, radius,  
+               row_number() over ( order by radius desc) as size_rank
+        from   moons
+        where  planet_name in ('Earth','Mars','Saturn')
+      )
+      where size_rank <= 3;
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      ## Particiones
+
+
+      En un nuevo requerimiento nos piden, sobre un conjunto de datos de países,
+      los tres países con mayor población, por continente. Veamos los datos...
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select * 
+      from COUNTRIES_POPULATION
+      order by continent, name
+    languageId: oracle-sql
+  - kind: 1
+    value: Podríamos aplicar el mismo método para extrar la información que
+      utilizamos anteriormente, pero tendríamos que correr varios scripts para
+      cada continente, lo cual no sería práctico.
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select * 
+      from ( 
+        select c.*, 
+               row_number() over ( order by population desc) as pop_rank 
+        from   COUNTRIES_POPULATION c 
+        where  continent = 'Africa' 
+      ) 
+      where pop_rank <= 3;
+
+      select * 
+      from ( 
+        select c.*, 
+               row_number() over ( order by population desc) as pop_rank 
+        from   COUNTRIES_POPULATION c 
+        where  continent = 'Oceania' 
+      ) 
+      where pop_rank <= 3;
+
+      select * 
+      from ( 
+        select c.*, 
+               row_number() over ( order by population desc) as pop_rank 
+        from   COUNTRIES_POPULATION c 
+        where  continent = 'Europe' 
+      ) 
+      where pop_rank <= 3;
+    languageId: oracle-sql
+  - kind: 1
+    value: >
+      Existe una mejor forma, usando la cláusula de partición que vimos al
+      principio, en la sintaxis básica de las funciones analíticas.
+
+
+      ```
+
+      <function> ( <arg>,<arg>,… )
+
+      OVER (
+        <partition clause>
+        <sorting clause>
+        <windowing clause>
+      )
+
+      ```
+    languageId: markdown
