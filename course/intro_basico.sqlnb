@@ -43,14 +43,25 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select employee_id, first_name, job_id, hire_date, salary
-      from hr.EMPLOYEES;
+      SELECT employee_id,
+             first_name,
+             job_id,
+             hire_date,
+             salary
+        FROM hr.employees;
     languageId: oracle-sql
   - kind: 2
     value: |-
-      select employee_id, first_name, job_id, hire_date, salary,
-             rank () over (order by hire_date) as hire_seq
-      from hr.EMPLOYEES;
+      SELECT employee_id,
+             first_name,
+             job_id,
+             hire_date,
+             salary,
+             RANK()
+             OVER(
+                 ORDER BY hire_date
+             ) AS hire_seq
+        FROM hr.employees;
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -62,10 +73,20 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select employee_id, first_name, job_id, hire_date, salary,
-             rank () over (order by hire_date) as hire_seq,
-             dense_rank() over (order by hire_date) as hire_seq_dense
-      from hr.EMPLOYEES;
+      SELECT employee_id,
+             first_name,
+             job_id,
+             hire_date,
+             salary,
+             RANK()
+             OVER(
+                 ORDER BY hire_date
+             ) AS hire_seq,
+             DENSE_RANK()
+             OVER(
+                 ORDER BY hire_date
+             ) AS hire_seq_dense
+        FROM hr.employees;
     languageId: oracle-sql
   - kind: 1
     value: |-
@@ -75,11 +96,25 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select employee_id, first_name, job_id, hire_date, salary,
-             rank () over (order by hire_date) as hire_seq,
-             dense_rank() over (order by hire_date) as hire_seq_dense,
-             row_number() over (order by hire_date, employee_id) as hire_seq_row
-      from hr.EMPLOYEES;
+      SELECT employee_id,
+             first_name,
+             job_id,
+             hire_date,
+             salary,
+             RANK()
+             OVER(
+                 ORDER BY hire_date
+             ) AS hire_seq,
+             DENSE_RANK()
+             OVER(
+                 ORDER BY hire_date
+             ) AS hire_seq_dense,
+             ROW_NUMBER()
+             OVER(
+                 ORDER BY hire_date,
+                          employee_id
+             ) AS hire_seq_row
+        FROM hr.employees;
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -91,9 +126,11 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select * from PLANETS;
+      SELECT *
+        FROM planets;
 
-      select * from MOONS;
+      SELECT *
+        FROM moons;
     languageId: oracle-sql
   - kind: 1
     value: 'El requerimiento que nos han dado es: "ordena los planetas por el tamaño
@@ -101,12 +138,22 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select p.name planet, m.name, m.radius,  
-             row_number() over ( order by radius desc ) as size_rank 
-      from planets p, moons m 
-      where p.name = m.planet_name(+) 
-      and p.name in ('Mars','Venus','Pluto','Mercury','Neptune') 
-      order by size_rank;
+      SELECT p.name planet,
+             m.name,
+             m.radius,
+             ROW_NUMBER()
+             OVER(
+                 ORDER BY radius DESC
+             ) AS size_rank
+        FROM planets p,
+             moons m
+       WHERE p.name = m.planet_name (+)
+         AND p.name IN ( 'Mars',
+                         'Venus',
+                         'Pluto',
+                         'Mercury',
+                         'Neptune' )
+       ORDER BY size_rank;
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -119,11 +166,21 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select p.name planet, m.name, m.radius,  
-             row_number() over ( order by radius desc NULLS LAST ) as size_rank 
-      from planets p, moons m 
-      where p.name = m.planet_name(+) 
-      and p.name in ('Mars','Venus','Pluto','Mercury','Neptune');
+      SELECT p.name planet,
+             m.name,
+             m.radius,
+             ROW_NUMBER()
+             OVER(
+                 ORDER BY radius DESC NULLS LAST
+             ) AS size_rank
+        FROM planets p,
+             moons m
+       WHERE p.name = m.planet_name (+)
+         AND p.name IN ( 'Mars',
+                         'Venus',
+                         'Pluto',
+                         'Mercury',
+                         'Neptune' );
     languageId: oracle-sql
   - kind: 1
     value: Si hubiera utilizado la función `RANK` me hubiera retornado el mismo
@@ -131,12 +188,22 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select p.name planet, m.name, m.radius, 
-             rank() over ( order by radius desc ) as size_rank 
-      from planets p, moons m 
-      where p.name = m.planet_name(+) 
-      and p.name in ('Mars','Venus','Pluto','Mercury','Neptune') 
-      order by size_rank;
+      SELECT p.name planet,
+             m.name,
+             m.radius,
+             RANK()
+             OVER(
+                 ORDER BY radius DESC
+             ) AS size_rank
+        FROM planets p,
+             moons m
+       WHERE p.name = m.planet_name (+)
+         AND p.name IN ( 'Mars',
+                         'Venus',
+                         'Pluto',
+                         'Mercury',
+                         'Neptune' )
+       ORDER BY size_rank;
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -152,11 +219,21 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select planet_name, name, radius,  
-             row_number() over ( order by radius desc) as size_rank
-      from   moons
-      where  planet_name in ('Earth','Mars','Saturn')
-      and    row_number() over ( order by radius desc) <= 3;
+      SELECT planet_name,
+             name,
+             radius,
+             ROW_NUMBER()
+             OVER(
+                 ORDER BY radius DESC
+             ) AS size_rank
+        FROM moons
+       WHERE planet_name IN ( 'Earth',
+                              'Mars',
+                              'Saturn' )
+         AND ROW_NUMBER()
+             OVER(
+          ORDER BY radius DESC
+             ) <= 3;
     languageId: oracle-sql
   - kind: 1
     value: La consulta anterior daría error, dado que no es válido colocar una
@@ -166,14 +243,21 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select *
-      from (
-        select planet_name, name, radius,  
-               row_number() over ( order by radius desc) as size_rank
-        from   moons
-        where  planet_name in ('Earth','Mars','Saturn')
+      SELECT *
+        FROM (
+         SELECT planet_name,
+                name,
+                radius,
+                ROW_NUMBER()
+                OVER(
+                    ORDER BY radius DESC
+                ) AS size_rank
+           FROM moons
+          WHERE planet_name IN ( 'Earth',
+                                 'Mars',
+                                 'Saturn' )
       )
-      where size_rank <= 3;
+       WHERE size_rank <= 3;
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -185,9 +269,10 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select * 
-      from COUNTRIES_POPULATION
-      order by continent, name
+      SELECT *
+        FROM countries_population
+       ORDER BY continent,
+                name
     languageId: oracle-sql
   - kind: 1
     value: Podríamos aplicar el mismo método para extrar la información que
@@ -196,32 +281,41 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select * 
-      from ( 
-        select c.*, 
-               row_number() over ( order by population desc) as pop_rank 
-        from   COUNTRIES_POPULATION c 
-        where  continent = 'Africa' 
-      ) 
-      where pop_rank <= 3;
+      SELECT *
+        FROM (
+         SELECT c.*,
+                ROW_NUMBER()
+                OVER(
+                    ORDER BY population DESC
+                ) AS pop_rank
+           FROM countries_population c
+          WHERE continent = 'Africa'
+      )
+       WHERE pop_rank <= 3;
 
-      select * 
-      from ( 
-        select c.*, 
-               row_number() over ( order by population desc) as pop_rank 
-        from   COUNTRIES_POPULATION c 
-        where  continent = 'Oceania' 
-      ) 
-      where pop_rank <= 3;
+      SELECT *
+        FROM (
+         SELECT c.*,
+                ROW_NUMBER()
+                OVER(
+                    ORDER BY population DESC
+                ) AS pop_rank
+           FROM countries_population c
+          WHERE continent = 'Oceania'
+      )
+       WHERE pop_rank <= 3;
 
-      select * 
-      from ( 
-        select c.*, 
-               row_number() over ( order by population desc) as pop_rank 
-        from   COUNTRIES_POPULATION c 
-        where  continent = 'Europe' 
-      ) 
-      where pop_rank <= 3;
+      SELECT *
+        FROM (
+         SELECT c.*,
+                ROW_NUMBER()
+                OVER(
+                    ORDER BY population DESC
+                ) AS pop_rank
+           FROM countries_population c
+          WHERE continent = 'Europe'
+      )
+       WHERE pop_rank <= 3;
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -251,15 +345,16 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select * 
-      from ( 
-        select c.*, 
-               row_number() over (  
-                   partition by continent 
-                   order by population desc) as pop_rank 
-        from   COUNTRIES_POPULATION c 
-      ) 
-      where pop_rank <= 3
+      SELECT *
+        FROM (
+         SELECT c.*,
+                ROW_NUMBER()
+                OVER(PARTITION BY continent
+                     ORDER BY population DESC
+                ) AS pop_rank
+           FROM countries_population c
+      )
+       WHERE pop_rank <= 3
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -276,18 +371,28 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select EMPLOYEE_ID, FIRST_NAME, JOB_ID, HIRE_DATE, SALARY
-      from EMPLOYEES
-      order by SALARY
+      SELECT employee_id,
+             first_name,
+             job_id,
+             hire_date,
+             salary
+        FROM employees
+       ORDER BY salary
     languageId: oracle-sql
   - kind: 2
     value: |-
-      select DEPARTMENT_ID, EMPLOYEE_ID, FIRST_NAME, JOB_ID, SALARY,
-            sum(SALARY) OVER (
-              partition by DEPARTMENT_ID
-              order by FIRST_NAME) as running_total
-          from EMPLOYEES
-          order by DEPARTMENT_ID, FIRST_NAME
+      SELECT department_id,
+             employee_id,
+             first_name,
+             job_id,
+             salary,
+             SUM(salary)
+             OVER(PARTITION BY department_id
+                  ORDER BY first_name
+             ) AS running_total
+        FROM employees
+       ORDER BY department_id,
+                first_name
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -302,33 +407,43 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select DEPARTMENT_ID, EMPLOYEE_ID, FIRST_NAME, JOB_ID, SALARY,
-            sum(SALARY) OVER (
-              partition by DEPARTMENT_ID
-              order by FIRST_NAME) as running_total
-          from EMPLOYEES
-          order by DEPARTMENT_ID, HIRE_DATE
+      SELECT department_id,
+             employee_id,
+             first_name,
+             job_id,
+             salary,
+             SUM(salary)
+             OVER(PARTITION BY department_id
+                  ORDER BY first_name
+             ) AS running_total
+        FROM employees
+       ORDER BY department_id,
+                hire_date
     languageId: oracle-sql
   - kind: 1
     value: La posibilidad de usar las funciones de agrupación como `SUM` en
-      funciones analíticas nos abre una abaníco de posiblidades, sin embargo
+      funciones analíticas nos abre una abanico de posiblidades, sin embargo
       deben tener cuidado con el costo de dichas consultas.
     languageId: markdown
   - kind: 2
-    value: >-
-      select /*+ gather_plan_statistics */ DEPARTMENT_ID, JOB_ID, FIRST_NAME,
-      SALARY,
-                 sum(SALARY) over () total_sal,
-                 sum(SALARY) over 
-                     ( partition by DEPARTMENT_ID) sal_by_dept,
-                 sum(SALARY) over 
-                     ( partition by DEPARTMENT_ID, JOB_ID) sal_by_dept_job
-          from EMPLOYEES
-          order by DEPARTMENT_ID, JOB_ID;
+    value: |-
+      SELECT /*+ gather_plan_statistics */ department_id,
+             job_id,
+             first_name,
+             salary,
+             SUM(salary)
+             OVER() total_sal,
+             SUM(salary)
+             OVER(PARTITION BY department_id) sal_by_dept,
+             SUM(salary)
+             OVER(PARTITION BY department_id,
+                               job_id) sal_by_dept_job
+        FROM employees
+       ORDER BY department_id,
+                job_id;
 
-      select * 
-
-      from   table(dbms_xplan.display_cursor(format => 'allstats LAST'));
+      SELECT *
+        FROM TABLE ( dbms_xplan.display_cursor(format => 'allstats LAST') );
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -352,18 +467,22 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select * 
-      from water
-      order by 3 desc
+      SELECT *
+        FROM water
+       ORDER BY 3 DESC
     languageId: oracle-sql
   - kind: 2
     value: |-
-      select name, type, square_km,
-             sum(square_km) over ( order by square_km desc 
-                rows between unbounded preceding and current row
-      ) as tot
-      from water
-      order by 3 desc
+      SELECT name,
+             type,
+             square_km,
+             SUM(square_km)
+             OVER(
+                 ORDER BY square_km DESC
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+             ) AS tot
+        FROM water
+       ORDER BY 3 DESC
     languageId: oracle-sql
   - kind: 1
     value: >
@@ -372,10 +491,15 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select name, type, square_km,
-             sum(square_km) over ( order by square_km desc) as tot
-      from water
-      order by 3 desc;
+      SELECT name,
+             type,
+             square_km,
+             SUM(square_km)
+             OVER(
+                 ORDER BY square_km DESC
+             ) AS tot
+        FROM water
+       ORDER BY 3 DESC;
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -393,14 +517,24 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select name, type, square_km,
-             sum(square_km) over ( 
-                partition by type
-                order by square_km desc 
-                rows between 1 preceding and 1 following
-      ) as "3_ROW"
-      from water
-      order by decode(type,'Ocean',1,'Sea',2,3), square_km desc
+      SELECT name,
+             type,
+             square_km,
+             SUM(square_km)
+             OVER(PARTITION BY type
+                  ORDER BY square_km DESC
+                ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING
+             ) AS "3_ROW"
+        FROM water
+       ORDER BY decode(
+         type,
+         'Ocean',
+         1,
+         'Sea',
+         2,
+         3
+      ),
+                square_km DESC
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -414,11 +548,10 @@ cells:
     languageId: markdown
   - kind: 2
     value: |-
-      select 
-        dte,
-        tweet_millions
-      from tweets
-      order by dte
+      SELECT dte,
+             tweet_millions
+        FROM tweets
+       ORDER BY dte
     languageId: oracle-sql
   - kind: 1
     value: Como vemos hay saltos en las fechas, por lo que no podemos simplemente
@@ -426,15 +559,16 @@ cells:
       uso de un rango por valores, en este caso por rangos de fecha.
     languageId: markdown
   - kind: 2
-    value: >-
-      select  dte, tweet_millions,
-        round(
-          avg(tweet_millions) over
-               ( order by dte
-                 range between interval '6' month preceding and current row )) mov_avg
-      from tweets
-
-      order by dte
+    value: |-
+      SELECT dte,
+             tweet_millions,
+             round(AVG(tweet_millions)
+                   OVER(
+                 ORDER BY dte
+                RANGE BETWEEN INTERVAL '6' MONTH PRECEDING AND CURRENT ROW
+                   )) mov_avg
+        FROM tweets
+       ORDER BY dte
     languageId: oracle-sql
   - kind: 1
     value: >-
@@ -443,6 +577,167 @@ cells:
       última?
 
 
+      Aquí utilizamos las funciones:
+
+      - `FIRST_VALUE`
+
+      - `LAST_VALUE`
+
+
       Veamos un nuevo requerimiento: Muéstrame la esperanza de vida en todo el
       Reino Unido en comparación con 5 años a cada lado.
     languageId: markdown
+  - kind: 2
+    value: "SELECT *\r
+
+      \  FROM life_expectancy\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: Esta consulta muestra la información solicitada
+    languageId: markdown
+  - kind: 2
+    value: "SELECT recorded_year,\r
+
+      \       age,\r
+
+      \       FIRST_VALUE(age)\r
+
+      \       OVER(\r
+
+      \           ORDER BY recorded_year\r
+
+      \          RANGE BETWEEN INTERVAL '5' YEAR PRECEDING AND INTERVAL '5' YEAR
+      FOLLOWING\r
+
+      \       ) AS first_val,\r
+
+      \       LAST_VALUE(age)\r
+
+      \       OVER(\r
+
+      \           ORDER BY recorded_year\r
+
+      \          RANGE BETWEEN INTERVAL '5' YEAR PRECEDING AND INTERVAL '5' YEAR
+      FOLLOWING\r
+
+      \       ) AS last_val\r
+
+      \  FROM life_expectancy\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: "Pudimos obtener el primer y el último valor de un rango dentro de la
+      ventana ¿pero cómo obtengo el segundo, o el tercero dentro de una
+      ventana?\r
+
+      \r
+
+      En este caso utilizaremos la función `NTH_VALUE`\r
+
+      \r
+
+      Nuevo requerimiento: Comparar los viajes diarios de Uber en NYC con el 2do
+      más bajo/alto de Julio a Septiembre."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT *\r\n  FROM trips;"
+    languageId: oracle-sql
+  - kind: 1
+    value: "La función `NTH_VALUE` puede recibir varios parámetros:\r
+
+      \r
+
+      - `measure_column`: La columna a devolver-\r
+
+      - `n`: Un entero positivo indicando la posición.\r
+
+      - `FROM FIRST` / `FROM LAST`: Determina si el conteo comienza en la
+      primera fila o la última fila de la ventana."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT trip_date,\r
+
+      \       trip_count,\r
+
+      \       NTH_VALUE(trip_count,\r
+
+      \                 2)\r
+
+      \       OVER(\r
+
+      \           ORDER BY trip_count\r
+
+      \          RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING\r
+
+      \       ) AS low_2\r
+
+      \  FROM trips\r
+
+      \ ORDER BY 1;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT trip_date,\r
+
+      \       trip_count,\r
+
+      \       round(\r
+
+      \          100 * trip_count / NTH_VALUE(trip_count,\r
+
+      \                                       2)\r
+
+      \                             OVER(\r
+
+      \              ORDER BY trip_count\r
+
+      \             RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING\r
+
+      \                             ),\r
+
+      \          2\r
+
+      \       ) AS pct_comparison\r
+
+      \  FROM trips\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: Para obtener el valor más alto, agregamos `FROM LAST` a los parámetros de
+      la función
+    languageId: markdown
+  - kind: 2
+    value: "SELECT trip_date,\r
+
+      \       trip_count,\r
+
+      \       NTH_VALUE(trip_count,\r
+
+      \                 2 FROM LAST)\r
+
+      \       OVER(\r
+
+      \           ORDER BY trip_count\r
+
+      \          RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING\r
+
+      \       ) AS hi_2\r
+
+      \  FROM trips\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: "¿Qué pasa con los NULL en las ventanas?\r
+
+      \r
+
+      Veamos este nuevo requerimiento: Tengo una tabla externa escaneada de un
+      reporte departamental. Llena los blanco y dame el conteo de empleados."
+    languageId: markdown
+  - kind: 2
+    value: ""
+    languageId: oracle-sql
