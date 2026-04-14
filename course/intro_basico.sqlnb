@@ -1154,3 +1154,96 @@ cells:
 
       \          3 NULLS FIRST"
     languageId: oracle-sql
+  - kind: 1
+    value: "¿Qué sucede cuando `LAG` y `LEAD` encuentra columnas con valores NULL?\r
+
+      \r
+
+      Vamos a revisitar el requerimiento del reporte de empleados por
+      departamento."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT empno,\r
+
+      \       ename,\r
+
+      \       job,\r
+
+      \       hiredate,\r
+
+      \       sal,\r
+
+      \       deptno\r
+
+      \  FROM external_emp\r
+
+      \ ORDER BY seq"
+    languageId: oracle-sql
+  - kind: 1
+    value: Podemos aprovechar la función `LAG` para lograr el mismo resultado,
+      simplemente buscando el valor de la fila anterior.
+    languageId: markdown
+  - kind: 2
+    value: "SELECT empno,\r
+
+      \       ename,\r
+
+      \       job,\r
+
+      \       hiredate,\r
+
+      \       sal,\r
+
+      \       nvl(\r
+
+      \          deptno,\r
+
+      \          LAG(deptno)\r
+
+      \          OVER(\r
+
+      \              ORDER BY seq\r
+
+      \          )\r
+
+      \       ) deptno\r
+
+      \  FROM external_emp\r
+
+      \ ORDER BY seq"
+    languageId: oracle-sql
+  - kind: 1
+    value: Pero no funciona como esperamos, porque, por ejemplo, la tercera fila
+      verá que la segunda fila aun tiene NULL en el campo del departamento, y es
+      eso lo que colocará. Al igual que con `LAST_VALUE`, podemos usar una
+      cláusula para ignorar los NULL.
+    languageId: markdown
+  - kind: 2
+    value: "SELECT empno,\r
+
+      \       ename,\r
+
+      \       job,\r
+
+      \       hiredate,\r
+
+      \       sal,\r
+
+      \       nvl(\r
+
+      \          deptno,\r
+
+      \          LAG(deptno IGNORE NULLS)\r
+
+      \          OVER(\r
+
+      \              ORDER BY seq\r
+
+      \          )\r
+
+      \       ) deptno\r
+
+      \  FROM external_emp\r
+
+      \ ORDER BY seq"
+    languageId: oracle-sql
