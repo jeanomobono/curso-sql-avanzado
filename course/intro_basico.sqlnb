@@ -117,6 +117,96 @@ cells:
         FROM hr.employees;
     languageId: oracle-sql
   - kind: 1
+    value: "## Llenando los vacíos\r
+
+      \r
+
+      Podemos aprovechar lo que sabemos de funciones analíticas hasta el momento
+      para ayudarnos a llenar vacíos en la data.\r
+
+      \r
+
+      Supongamos que estamos en un laboratorio que debe tomar muestras todos los
+      días. El requerimiento es: lista las muestras tomadas en grupos de días
+      consecutivos."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT *\r
+
+      \  FROM lab_samples\r
+
+      \ ORDER BY 2;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- Primero obtengamos los números de fila ordenados por fecha\r
+
+      SELECT date_taken,\r
+
+      \       ROW_NUMBER()\r
+
+      \       OVER(\r
+
+      \           ORDER BY date_taken\r
+
+      \       ) AS rn\r
+
+      \  FROM lab_samples\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: Necesitamos una forma de convertir ese número de fila en un valor que nos
+      permita agrupar números consecutivos. En este caso podriamos restar de la
+      fecha el número de la fila y siempre obtendríamos el mismo valor para
+      rangos de fechas consecutivos.
+    languageId: markdown
+  - kind: 2
+    value: "SELECT date_taken,\r
+
+      \       date_taken - ROW_NUMBER()\r
+
+      \                    OVER(\r
+
+      \           ORDER BY date_taken\r
+
+      \                    ) AS delta\r
+
+      \  FROM lab_samples\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: Ahora puedo agrupar por esa columna DELTA para obtener las cantidades por
+      días consecutivos.
+    languageId: markdown
+  - kind: 2
+    value: "SELECT MIN(date_taken) date_from,\r
+
+      \       MAX(date_taken) date_to,\r
+
+      \       COUNT(*) num_samples\r
+
+      \  FROM (\r
+
+      \   SELECT date_taken,\r
+
+      \          date_taken - ROW_NUMBER()\r
+
+      \                       OVER(\r
+
+      \              ORDER BY date_taken\r
+
+      \                       ) AS delta\r
+
+      \     FROM lab_samples\r
+
+      )\r
+
+      \ GROUP BY delta\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
     value: >-
       ## Manejo de NULLS
 

@@ -1,0 +1,415 @@
+cells:
+  - kind: 1
+    value: "# Soluciones a problemas reales\r
+
+      \r
+
+      Veamos como usando funciones analíticas podemos dar solución a algunos de
+      los inconvenientes que se presentan en los datos.\r
+
+      \r
+
+      ## Eliminación de duplicados\r
+
+      \r
+
+      Esta situación puede ser solucionada con la función ROW_NUMBER.\r
+
+      \r
+
+      Requerimiento: eliminar los duplicados en la tabla sobre el clima."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT *\r
+
+      \  FROM perth_weather\r
+
+      \ ORDER BY sampled"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT trunc(\r
+
+      \   sampled,\r
+
+      \   'mm'\r
+
+      ) mth,\r
+
+      \       SUM(rainfall)\r
+
+      \  FROM perth_weather\r
+
+      \ GROUP BY trunc(\r
+
+      \   sampled,\r
+
+      \   'mm'\r
+
+      )\r
+
+      \ ORDER BY 2 DESC;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT sampled,\r
+
+      \       ROWID,\r
+
+      \       ROW_NUMBER()\r
+
+      \       OVER(PARTITION BY sampled\r
+
+      \            ORDER BY ROWID\r
+
+      \       ) AS dup_cnt\r
+
+      \  FROM perth_weather;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT rid\r
+
+      \  FROM (\r
+
+      \   SELECT ROWID rid,\r
+
+      \          ROW_NUMBER()\r
+
+      \          OVER(PARTITION BY sampled\r
+
+      \               ORDER BY ROWID\r
+
+      \          ) AS dup_cnt\r
+
+      \     FROM perth_weather\r
+
+      )\r
+
+      \ WHERE dup_cnt > 1"
+    languageId: oracle-sql
+  - kind: 2
+    value: "DELETE FROM perth_weather\r
+
+      \ WHERE ROWID IN (\r
+
+      \   SELECT rid\r
+
+      \     FROM (\r
+
+      \      SELECT ROWID,\r
+
+      \             ROW_NUMBER()\r
+
+      \             OVER(PARTITION BY sampled\r
+
+      \                  ORDER BY ROWID\r
+
+      \             ) AS dup_cnt\r
+
+      \        FROM perth_weather\r
+
+      \   )\r
+
+      \    WHERE dup_cnt > 1\r
+
+      )"
+    languageId: oracle-sql
+  - kind: 1
+    value: "## TOP-N\r
+
+      \r
+
+      Obtener el top-n del resultado de una consulta se simplifica con las
+      funciones analíticas\r
+
+      \r
+
+      Requerimiento 1: ¿Cuales son los 5 días con mayor venta (top-5) en nuestra
+      historia?\r
+
+      \r
+
+      Requerimiento 2: ¿Cuales son los 5 días con mayor venta (top-5) en nuestra
+      historia *por cada tienda*?"
+    languageId: markdown
+  - kind: 2
+    value: "-- El requerimiento #1 es fácil de obtener sin analiticas\r
+
+      SELECT *\r
+
+      \  FROM (\r
+
+      \   SELECT *\r
+
+      \     FROM walmart_sales\r
+
+      \    ORDER BY tot_sales DESC\r
+
+      )\r
+
+      \ WHERE ROWNUM <= 5"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- En 12c en adelante es aun más simple con `FETCH FIRST`\r
+
+      \r
+
+      SELECT *\r
+
+      \  FROM walmart_sales\r
+
+      \ ORDER BY tot_sales DESC\r
+
+      \ FETCH FIRST 5 ROWS ONLY"
+    languageId: oracle-sql
+  - kind: 1
+    value: "Pero el requerimiento #2 es un poco más complejo, porque requiere la
+      información agrupada por tienda.\r
+
+      \r
+
+      En este caso podemos utilizar la función RANK con una partición sobre el
+      ID de la tienda, lo cual agrupará los datos por tienda y luego podemos
+      extraer las 5 primeras con el valor de la columna de posición (RANK)"
+    languageId: markdown
+  - kind: 2
+    value: "\r
+
+      SELECT *\r
+
+      \  FROM (\r
+
+      \   SELECT w.*,\r
+
+      \          RANK()\r
+
+      \          OVER(PARTITION BY store_id\r
+
+      \               ORDER BY tot_sales DESC\r
+
+      \          ) AS sales_rank\r
+
+      \     FROM walmart_sales w\r
+
+      )\r
+
+      \ WHERE sales_rank <= 5\r
+
+      \ ORDER BY store_id,\r
+
+      \          sales_rank"
+    languageId: oracle-sql
+  - kind: 1
+    value: "## Agrupando rangos de datos\r
+
+      \r
+
+      En la introducción vimos como agrupar las muestras de un laboratorio. En
+      ese momento solo conocíamos algunas pocas funciones analíticas. Veamos
+      como podemos hacer lo mismo con el conocimiento que ahora tenemos.\r
+
+      \r
+
+      Recordemos el requerimiento: Agrupar las muestras por días consecutivos.\r
+
+      \r
+
+      Veamos nuevamente los datos y analicemos: ¿qué significa \"días
+      consecutivos\"?"
+    languageId: markdown
+  - kind: 2
+    value: select * from LAB_SAMPLES order by 2
+    languageId: oracle-sql
+  - kind: 1
+    value: "Podríamos pensar en \"consecutivos\" cuando a un día le sumas 1.\r
+
+      \r
+
+      Aprovechemos la función LAG para ver el día anterior a la fecha que estoy
+      procesando"
+    languageId: markdown
+  - kind: 2
+    value: "SELECT date_taken,\r
+
+      \       LAG(date_taken)\r
+
+      \       OVER(\r
+
+      \           ORDER BY date_taken\r
+
+      \       ) prev\r
+
+      \  FROM lab_samples\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: "Si hay una diferencia de un día entre las fechas entonces puedo decir
+      que son consecutivos. Sino, ya puedo indicar que hay una ruptura y se
+      trata de otro grupo de fechas.\r
+
+      \r
+
+      Utilicemos un CASE para que me devuelva valor solamente cuando esa
+      diferencia sea mayor a 1."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT date_taken,\r
+
+      \       CASE\r
+
+      \          WHEN nvl(\r
+
+      \             LAG(date_taken)\r
+
+      \             OVER(\r
+
+      \                 ORDER BY date_taken\r
+
+      \             ),\r
+
+      \             date_taken\r
+
+      \          ) != date_taken - 1 THEN\r
+
+      \             date_taken\r
+
+      \       END loval\r
+
+      \  FROM lab_samples\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: Ya los datos están agrupados solo que aun no se ven como queremos.
+      Necesitamos llenar los espacios en blanco y eso ya lo hemos hecho.
+      Agreguemos MAX OVER sobre la fecha para que llene el resto de los campos.
+    languageId: markdown
+  - kind: 2
+    value: "SELECT date_taken,\r
+
+      \       MAX(loval)\r
+
+      \       OVER(\r
+
+      \           ORDER BY date_taken\r
+
+      \       ) loval\r
+
+      \  FROM (\r
+
+      \   SELECT date_taken,\r
+
+      \          CASE\r
+
+      \             WHEN nvl(\r
+
+      \                LAG(date_taken)\r
+
+      \                OVER(\r
+
+      \                    ORDER BY date_taken\r
+
+      \                ),\r
+
+      \                date_taken\r
+
+      \             ) != date_taken - 1 THEN\r
+
+      \                date_taken\r
+
+      \          END loval\r
+
+      \     FROM lab_samples\r
+
+      )\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: "Analicemos estos resultados. La columna LOVAL ya me permite agrupar por
+      segmentos, sin embargo también podemos ver que para cada uno de esos
+      segmentos necesito el valor mínimo y el valor máximo de la columna
+      DATE_TAKEN.\r
+
+      \r
+
+      Por ejemplo, para 01/12/15, el valor mínimo es 01/12/15 y el máximo es
+      04/12/15, que son precisamente las fechas que necesito. Entonces podemos
+      usar GROUP BY para mostrar la información como finalmente se solicitó."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT MIN(date_taken) range_start,\r
+
+      \       MAX(date_taken) range_end,\r
+
+      \       COUNT(*)\r
+
+      \  FROM (\r
+
+      \   SELECT date_taken,\r
+
+      \          MAX(loval)\r
+
+      \          OVER(\r
+
+      \              ORDER BY date_taken\r
+
+      \          ) loval\r
+
+      \     FROM (\r
+
+      \      SELECT date_taken,\r
+
+      \             CASE\r
+
+      \                WHEN nvl(\r
+
+      \                   LAG(date_taken)\r
+
+      \                   OVER(\r
+
+      \                       ORDER BY date_taken\r
+
+      \                   ),\r
+
+      \                   date_taken\r
+
+      \                ) != date_taken - 1 THEN\r
+
+      \                   date_taken\r
+
+      \             END loval\r
+
+      \        FROM lab_samples\r
+
+      \   )\r
+
+      )\r
+
+      \ GROUP BY loval\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
+  - kind: 1
+    value: "## LISTAGG: Concatenar multiples registros en una lista\r
+
+      \r
+
+      El requerimiento es: Dame una lista de departamentos y de los miembros de
+      cada uno de ellos, una línea por departamento, concatenando todos los
+      nombres."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT department_id,\r
+
+      \       LISTAGG(first_name,\r
+
+      \               ',') WITHIN GROUP(\r
+
+      \        ORDER BY employee_id) members\r
+
+      \  FROM hr.employees\r
+
+      \ GROUP BY department_id\r
+
+      \ ORDER BY 1"
+    languageId: oracle-sql
