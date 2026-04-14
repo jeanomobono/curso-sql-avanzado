@@ -739,5 +739,418 @@ cells:
       reporte departamental. Llena los blanco y dame el conteo de empleados."
     languageId: markdown
   - kind: 2
-    value: ""
+    value: "SELECT empno,\r
+
+      \       ename,\r
+
+      \       job,\r
+
+      \       hiredate,\r
+
+      \       sal,\r
+
+      \       deptno\r
+
+      \  FROM external_emp\r
+
+      \ ORDER BY seq"
+    languageId: oracle-sql
+  - kind: 1
+    value: La salida de esta consulta representa un reporte en el que las filas con
+      valores repetidos no se muestran, es decir, la segunda y tercera fila sí
+      pertencen al departamento 10, luego los cinco registros bajo el 20 también
+      pertenecerían al departamento 20 y así sucesivamente. Con el uso de la
+      función LAST_VALUE podríamos obtener el dato que falta.
+    languageId: markdown
+  - kind: 2
+    value: "SELECT empno,\r
+
+      \       ename,\r
+
+      \       job,\r
+
+      \       hiredate,\r
+
+      \       sal,\r
+
+      \       LAST_VALUE(deptno)\r
+
+      \       OVER(\r
+
+      \           ORDER BY seq\r
+
+      \       ) deptno\r
+
+      \  FROM external_emp\r
+
+      \ ORDER BY seq"
+    languageId: oracle-sql
+  - kind: 1
+    value: "Sin embargo, vemos que no funciona, los registros siguen manteniendo
+      valores nulos. Esto es lo que ocurre:\r
+
+      \r
+
+      - Por defecto Oracle respeta los nulos dentro de las ventanas, así que
+      para esos registros en particular los NULL son de hecho el último valor.\r
+
+      - **Aclaratoria importante**: Si se omite la cláusula *windowing* al usar
+      LAST_VALUE, entonces la ventana por defecto es `RANGE BETWEEN UNBOUNDED
+      PRECEDING AND CURRENT ROW`.\r
+
+      \r
+
+      Para ignorar los nulos agregamos `IGNORE NULL`."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT empno,\r
+
+      \       ename,\r
+
+      \       job,\r
+
+      \       hiredate,\r
+
+      \       sal,\r
+
+      \       LAST_VALUE(deptno IGNORE NULLS)\r
+
+      \       OVER(\r
+
+      \           ORDER BY seq\r
+
+      \       ) deptno\r
+
+      \  FROM external_emp\r
+
+      \ ORDER BY seq"
+    languageId: oracle-sql
+  - kind: 1
+    value: Finalmente con esta información puedo dar el conteo de empleados que me
+      solicitan
+    languageId: markdown
+  - kind: 2
+    value: "SELECT deptno,\r
+
+      \       COUNT(*)\r
+
+      \  FROM (\r
+
+      \   SELECT LAST_VALUE(deptno IGNORE NULLS)\r
+
+      \          OVER(\r
+
+      \       ORDER BY seq\r
+
+      \          ) deptno\r
+
+      \     FROM external_emp\r
+
+      )\r
+
+      \ GROUP BY deptno\r
+
+      \ ORDER BY deptno"
+    languageId: oracle-sql
+  - kind: 1
+    value: "A veces, las ventanas cambian dinámicamente según la necesidad.\r
+
+      \r
+
+      Veamos el siguiente requerimiento: Necesito las ventas totales del día
+      previo de cierre, lo cual solo hacemos los días de semana."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT time_id,\r
+
+      \       SUM(amount_sold) sold_per_day\r
+
+      \  FROM sh.sales\r
+
+      \ GROUP BY time_id\r
+
+      \ ORDER BY 1;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "CREATE OR REPLACE FUNCTION last_close (\r
+
+      \   p_close_date DATE\r
+
+      ) RETURN NUMBER IS\r
+
+      BEGIN\r
+
+      \   RETURN\r
+
+      \      CASE to_char(\r
+
+      \         p_close_date,\r
+
+      \         'DY'\r
+
+      \      )\r
+
+      \         WHEN 'SUN' THEN\r
+
+      \            2\r
+
+      \         WHEN 'MON' THEN\r
+
+      \            3\r
+
+      \         ELSE\r
+
+      \            1\r
+
+      \      END;\r
+
+      END;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT time_id,\r
+
+      \       to_char(\r
+
+      \          time_id,\r
+
+      \          'DY'\r
+
+      \       ) close_day,\r
+
+      \       SUM(sold_per_day)\r
+
+      \       OVER(\r
+
+      \           ORDER BY time_id\r
+
+      \          RANGE BETWEEN last_close(time_id) PRECEDING AND 0 FOLLOWING\r
+
+      \       ) AS close_off\r
+
+      \  FROM (\r
+
+      \   SELECT time_id,\r
+
+      \          SUM(amount_sold) sold_per_day\r
+
+      \     FROM sh.sales\r
+
+      \    GROUP BY time_id\r
+
+      )"
+    languageId: oracle-sql
+  - kind: 1
+    value: "En otras oportunidades necesitamos procesar no la fila actual sino la
+      anterior o la próxima. En estos casos usaríamos las siguientes
+      funciones:\r
+
+      \r
+
+      - `LAG`: Provee acceso a una fila en un rango específico anterior a la
+      fila actual sin requerir un *self-join*\r
+
+      - `LEAD`: Provee acceso a una fila en un rango específico posterior a la
+      fila actual sin requerir un *self-join*\r
+
+      \r
+
+      En este requerimiento nos indican: Tenemos registrado el estatus de una
+      orden cada día. Reduce la lista para solo ver los cambios en los estatus
+      por rango de fechas."
+    languageId: markdown
+  - kind: 2
+    value: "SELECT *\r
+
+      \  FROM orders\r
+
+      \ ORDER BY 1,\r
+
+      \          2"
+    languageId: oracle-sql
+  - kind: 1
+    value: Uno podría pensar que es posible simplemente usar un GROUP BY para
+      agrupar por la columnas STATUS, sin embargo el resultado no tomaría en
+      cuenta los saltos en las fechas.
+    languageId: markdown
+  - kind: 2
+    value: "SELECT status,\r
+
+      \       MIN(status_date) from_date,\r
+
+      \       MAX(status_date) to_date\r
+
+      \  FROM orders\r
+
+      \ GROUP BY status\r
+
+      \ ORDER BY 2"
+    languageId: oracle-sql
+  - kind: 1
+    value: Primero usaremos la función `LAG` para obtener el estatus anterior a la
+      fila que estoy procesando
+    languageId: markdown
+  - kind: 2
+    value: "SELECT order_id,\r
+
+      \       status_date,\r
+
+      \       status,\r
+
+      \       LAG(status,\r
+
+      \           1)\r
+
+      \       OVER(PARTITION BY order_id\r
+
+      \            ORDER BY status_date\r
+
+      \       ) lag_status\r
+
+      \  FROM orders\r
+
+      \ ORDER BY 1,\r
+
+      \          2"
+    languageId: oracle-sql
+  - kind: 1
+    value: Luego agregaremos la función `LEAD` para determinar el estatus siguiente
+      a la fila que estoy procesando
+    languageId: markdown
+  - kind: 2
+    value: "SELECT order_id,\r
+
+      \       status_date,\r
+
+      \       status,\r
+
+      \       LAG(status,\r
+
+      \           1)\r
+
+      \       OVER(PARTITION BY order_id\r
+
+      \            ORDER BY status_date\r
+
+      \       ) lag_status,\r
+
+      \       LEAD(status,\r
+
+      \            1)\r
+
+      \       OVER(PARTITION BY order_id\r
+
+      \            ORDER BY status_date\r
+
+      \       ) lead_status\r
+
+      \  FROM orders\r
+
+      \ ORDER BY 1,\r
+
+      \          2"
+    languageId: oracle-sql
+  - kind: 1
+    value: Para completar la información necesitamos también los cambios de fecha
+    languageId: markdown
+  - kind: 2
+    value: "SELECT order_id,\r
+
+      \       status_date,\r
+
+      \       status,\r
+
+      \       LAG(status)\r
+
+      \       OVER(PARTITION BY order_id\r
+
+      \            ORDER BY status_date\r
+
+      \       ) lag_status,\r
+
+      \       LEAD(status)\r
+
+      \       OVER(PARTITION BY order_id\r
+
+      \            ORDER BY status_date\r
+
+      \       ) lead_status,\r
+
+      \       LAG(status_date)\r
+
+      \       OVER(PARTITION BY order_id\r
+
+      \            ORDER BY status_date\r
+
+      \       ) lag_status_date,\r
+
+      \       LEAD(status_date)\r
+
+      \       OVER(PARTITION BY order_id\r
+
+      \            ORDER BY status_date\r
+
+      \       ) lead_status_date\r
+
+      \  FROM orders\r
+
+      \ ORDER BY 1,\r
+
+      \          2;"
+    languageId: oracle-sql
+  - kind: 1
+    value: Finalmente colocamos la consulta en una *inline view* y obtenemos el
+      resultado deseado.
+    languageId: markdown
+  - kind: 2
+    value: "SELECT order_id,\r
+
+      \       status,\r
+
+      \       LAG(status_date)\r
+
+      \       OVER(PARTITION BY order_id\r
+
+      \            ORDER BY status_date\r
+
+      \       ) from_date,\r
+
+      \       status_date to_date\r
+
+      \  FROM (\r
+
+      \   SELECT order_id,\r
+
+      \          status_date,\r
+
+      \          status,\r
+
+      \          LAG(status)\r
+
+      \          OVER(PARTITION BY order_id\r
+
+      \               ORDER BY status_date\r
+
+      \          ) lag_status,\r
+
+      \          LEAD(status)\r
+
+      \          OVER(PARTITION BY order_id\r
+
+      \               ORDER BY status_date\r
+
+      \          ) lead_status\r
+
+      \     FROM orders\r
+
+      )\r
+
+      \ WHERE lag_status IS NULL\r
+
+      \    OR lead_status IS NULL\r
+
+      \    OR lead_status <> status\r
+
+      \ ORDER BY 1,\r
+
+      \          3 NULLS FIRST"
     languageId: oracle-sql
